@@ -1,5 +1,6 @@
 package org.projects.shoppinglist;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -10,15 +11,13 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-
-    ArrayAdapter<String> adapter;
+    ArrayAdapter<Product> adapter;
     ListView listView;
-    ArrayList<String> bag = new ArrayList<String>();
+    ArrayList<Product> bag = new ArrayList<>();
 
     public ArrayAdapter getMyAdapter()
     {
@@ -36,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
         //get previous state of the app before it gets destroyed
         if(savedInstanceState != null){
-            bag = savedInstanceState.getStringArrayList("bag");
+            bag = savedInstanceState.getParcelableArrayList("bag");
             position = savedInstanceState.getInt("position");
         }
 
@@ -45,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         listView = (ListView) findViewById(R.id.list);
         //here we create a new adapter linking the bag and the
         //listview
-        adapter =  new ArrayAdapter<String>(this,
+        adapter =  new ArrayAdapter<Product>(this,
                 android.R.layout.simple_list_item_checked, bag );
 
         //setting the adapter on the listview
@@ -65,8 +64,9 @@ public class MainActivity extends AppCompatActivity {
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                bag.add(productAmount.getText().toString
-                        () + " " + productInput.getText().toString());
+                String name = productInput.getText().toString();
+                int quantity = Integer.valueOf(productAmount.getText().toString());
+                bag.add(new Product(name, quantity));
                 //you have to use getText() for EditText types
 
                 //The next line is needed in order to say to the ListView
@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
     public void onSaveInstanceState(Bundle savedInstanceState){
         super.onSaveInstanceState(savedInstanceState);
         //say what properties you want saved
-        savedInstanceState.putStringArrayList("bag", bag);
+        savedInstanceState.putParcelableArrayList("bag", bag);
         //the name between quotes doesn't have to match the original name of the
         // variable/whatever that is
         savedInstanceState.putInt("position", listView.getCheckedItemPosition());
