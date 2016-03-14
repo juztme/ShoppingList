@@ -1,5 +1,6 @@
 package org.projects.shoppinglist;
 
+import android.app.DialogFragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +12,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
+
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -64,8 +67,11 @@ public class MainActivity extends AppCompatActivity {
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //get input from user and transform it to string for the product name and int for
+                // the quantity
                 String name = productInput.getText().toString();
                 int quantity = Integer.valueOf(productAmount.getText().toString());
+                //add the product to the list
                 bag.add(new Product(name, quantity));
                 //you have to use getText() for EditText types
 
@@ -74,10 +80,6 @@ public class MainActivity extends AppCompatActivity {
                 getMyAdapter().notifyDataSetChanged();
             }
         });
-
-        //add some stuff to the list
-        //bag.add("Bananas");
-        //bag.add("Apples");
 
     }
 
@@ -101,8 +103,23 @@ public class MainActivity extends AppCompatActivity {
 
     //clear/delete button for the entire list
     public void onClickClear(View view){
-        bag.clear();
-        getMyAdapter().notifyDataSetChanged();
+        //showing dialog
+        MyDialogFragment dialog = new MyDialogFragment(){
+            @Override
+            protected void positiveClick(){
+                bag.clear();
+                getMyAdapter().notifyDataSetChanged();
+            }
+
+            @Override
+            protected void negativeClick(){
+                Toast toast = Toast.makeText(getApplicationContext(), "List not cleared", Toast
+                        .LENGTH_LONG);
+                toast.show();
+            }
+
+        };
+        dialog.show(getFragmentManager(), "MyFragment");
     }
 
     @Override

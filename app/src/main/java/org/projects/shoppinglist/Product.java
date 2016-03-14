@@ -48,7 +48,7 @@ public class Product implements Parcelable{
 
   @Override
   public String toString(){
-    return name + " " + quantity;
+    return quantity + " " + name;
   }
 
 }
