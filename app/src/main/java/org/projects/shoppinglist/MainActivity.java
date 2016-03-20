@@ -25,10 +25,13 @@ public class MainActivity extends AppCompatActivity {
     {
         return adapter;
     }
+
+    //declare elements for saving a copy of the product selected by the user
     Product lastDeletedProduct;
     int lastDeletedPosition;
-
+    //method for saving a copy of the product selected
     public void saveCopy(){
+        //define the elements to be saved
         lastDeletedPosition = listView.getCheckedItemPosition();
         lastDeletedProduct = bag.get(lastDeletedPosition);
     }
@@ -145,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
         dialog.show(getFragmentManager(), "MyFragment");
     }
 
+    //switch to using manual amount
     public void onClickUseManualAmount(View view){
         Spinner dropDown = (Spinner) findViewById(R.id.dropDownAmount);
         EditText manualAmount = (EditText) findViewById(R.id.productAmount);
@@ -152,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
         manualAmount.setVisibility(View.VISIBLE);
     }
 
+    //switch to using the dropdown list for the amount
     public void onClickUseDropdownAmount(View view){
         Spinner dropDown = (Spinner) findViewById(R.id.dropDownAmount);
         EditText manualAmount = (EditText) findViewById(R.id.productAmount);
