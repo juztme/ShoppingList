@@ -1,6 +1,7 @@
 package org.projects.shoppinglist;
 
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -20,10 +21,16 @@ public class MainActivity extends AppCompatActivity {
     ArrayAdapter<Product> adapter;
     ListView listView;
     ArrayList<Product> bag = new ArrayList<>();
-
     public ArrayAdapter<Product> getMyAdapter()
     {
         return adapter;
+    }
+    Product lastDeletedProduct;
+    int lastDeletedPosition;
+
+    public void saveCopy(){
+        lastDeletedPosition = listView.getCheckedItemPosition();
+        lastDeletedProduct = bag.get(lastDeletedPosition);
     }
 
     @Override
@@ -99,7 +106,21 @@ public class MainActivity extends AppCompatActivity {
 
     //delete button for a checked item
     public void onClickDelete(View view){
+        saveCopy(); //save a copy of the item selected before you delete it
         bag.remove(listView.getCheckedItemPosition());
+        Snackbar snackbar = Snackbar
+                .make(listView, "Item Deleted", Snackbar.LENGTH_LONG)
+                .setAction("UNDO", new View.OnClickListener(){
+                   @Override
+                   public void onClick(View view){
+                       bag.add(lastDeletedPosition, lastDeletedProduct);
+                       getMyAdapter().notifyDataSetChanged();
+                       Snackbar snackbar = Snackbar.make(listView, "Item restored!", Snackbar
+                               .LENGTH_SHORT);
+                       snackbar.show();
+                   }
+                });
+        snackbar.show();
         //you use getMyAdapter so that the app doesn't crash after changes
         getMyAdapter().notifyDataSetChanged();
     }
