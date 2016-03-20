@@ -1,7 +1,5 @@
 package org.projects.shoppinglist;
 
-import android.app.DialogFragment;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -12,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -22,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
     ListView listView;
     ArrayList<Product> bag = new ArrayList<>();
 
-    public ArrayAdapter getMyAdapter()
+    public ArrayAdapter<Product> getMyAdapter()
     {
         return adapter;
     }
@@ -63,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
         Button addButton = (Button) findViewById(R.id.addButton);
         final EditText productInput = (EditText) findViewById(R.id.productInput);
         final EditText productAmount = (EditText) findViewById(R.id.productAmount);
+        final Spinner dropdownAmount = (Spinner) findViewById(R.id.dropDownAmount);
 
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,9 +70,12 @@ public class MainActivity extends AppCompatActivity {
                 //get input from user and transform it to string for the product name and int for
                 // the quantity
                 String name = productInput.getText().toString();
+                //int quantity = Integer.valueOf(productAmount.getText().toString());
                 int quantity = Integer.valueOf(productAmount.getText().toString());
+                String listQuantity = (String) dropdownAmount.getSelectedItem();
+
                 //add the product to the list
-                bag.add(new Product(name, quantity));
+                bag.add(new Product(name, quantity, listQuantity));
                 //you have to use getText() for EditText types
 
                 //The next line is needed in order to say to the ListView
@@ -103,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
 
     //clear/delete button for the entire list
     public void onClickClear(View view){
-        //showing dialog
+        //showing dialog before anything gets deleted
         MyDialogFragment dialog = new MyDialogFragment(){
             @Override
             protected void positiveClick(){
@@ -117,9 +120,22 @@ public class MainActivity extends AppCompatActivity {
                         .LENGTH_LONG);
                 toast.show();
             }
-
         };
         dialog.show(getFragmentManager(), "MyFragment");
+    }
+
+    public void onClickUseManualAmount(View view){
+        Spinner dropDown = (Spinner) findViewById(R.id.dropDownAmount);
+        EditText manualAmount = (EditText) findViewById(R.id.productAmount);
+        dropDown.setVisibility(View.GONE);
+        manualAmount.setVisibility(View.VISIBLE);
+    }
+
+    public void onClickUseDropdownAmount(View view){
+        Spinner dropDown = (Spinner) findViewById(R.id.dropDownAmount);
+        EditText manualAmount = (EditText) findViewById(R.id.productAmount);
+        manualAmount.setVisibility(View.GONE);
+        dropDown.setVisibility(View.VISIBLE);
     }
 
     @Override

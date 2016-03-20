@@ -10,7 +10,9 @@ import android.os.Parcelable;
 public class Product implements Parcelable{
 
   private String name;
+  //private int quantity;
   private int quantity;
+  private String listQuantity;
 
   @Override
   public int describeContents() {
@@ -21,6 +23,7 @@ public class Product implements Parcelable{
   public void writeToParcel(Parcel dest, int flags) {
     dest.writeString(name);
     dest.writeInt(quantity);
+    dest.writeString(listQuantity);
   }
 
   //creator
@@ -35,20 +38,21 @@ public class Product implements Parcelable{
     }
   };
 
-  public Product(String name, int quantity){
+  public Product(String name, int quantity, String listQuantity){
     this.name = name;
     this.quantity = quantity;
+    this.listQuantity = listQuantity;
   }
 
   //de-parcel object
   public Product(Parcel in) {
     name = in.readString();
     quantity = in.readInt();
+    listQuantity = in.readString();
   }
 
   @Override
   public String toString(){
-    return quantity + " " + name;
+      return quantity + " " + listQuantity + " " + name;
   }
-
 }
