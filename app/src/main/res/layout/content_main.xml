@@ -33,7 +33,7 @@
             android:id="@+id/productInput"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="3"
+            android:layout_weight="2"
             android:hint="Product name" />
 
         <EditText
@@ -42,7 +42,15 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:inputType="number"
+            android:text="0"
             android:hint="Amount"/>
+
+        <Spinner
+            android:id="@+id/dropDownAmount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:entries="@array/chooseAmount"/>
     </LinearLayout>
 
     <LinearLayout
@@ -71,6 +79,26 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="onClickClear" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/manualMode"
+            android:text="Use manual amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="onClickUseManualAmount" />
+        <Button
+            android:id="@+id/dropdownMode"
+            android:text="Use dropdown list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="onClickUseDropdownAmount" />
     </LinearLayout>
 
     <ListView

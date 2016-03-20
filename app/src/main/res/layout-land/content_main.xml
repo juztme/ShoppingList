@@ -31,14 +31,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="3"
-            />
+            android:hint="Product name" />
 
         <EditText
             android:id="@+id/productAmount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:inputType="number"/>
+            android:inputType="number"
+            android:hint="Amount" />
+
+        <Spinner
+            android:id="@+id/dropDownAmount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:entries="@array/chooseAmount"/>
     </LinearLayout>
 
     <LinearLayout
