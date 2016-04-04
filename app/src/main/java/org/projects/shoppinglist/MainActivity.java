@@ -1,5 +1,7 @@
 package org.projects.shoppinglist;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -69,6 +71,21 @@ public class MainActivity extends AppCompatActivity {
             listView.setSelection(position);
         }
 
+        getPreferences(); //get the preferences when the user starts the app
+
+        //get the preferences for the switch
+        SharedPreferences prefs = getSharedPreferences("my_prefs", MODE_PRIVATE);
+        boolean manualInputSwitch = prefs.getBoolean("productAmountSwitch", false);
+        Spinner dropDown = (Spinner) findViewById(R.id.dropDownAmount);
+        EditText manualAmount = (EditText) findViewById(R.id.productAmount);
+        if(manualInputSwitch){
+            dropDown.setVisibility(View.GONE);
+            manualAmount.setVisibility(View.VISIBLE);
+        } else {
+            manualAmount.setVisibility(View.GONE);
+            dropDown.setVisibility(View.VISIBLE);
+        }
+
         Button addButton = (Button) findViewById(R.id.addButton);
         final EditText productInput = (EditText) findViewById(R.id.productInput);
         final EditText productAmount = (EditText) findViewById(R.id.productAmount);
@@ -93,7 +110,6 @@ public class MainActivity extends AppCompatActivity {
                 getMyAdapter().notifyDataSetChanged();
             }
         });
-
     }
 
     //save the info before it gets destroyed when the screen gets rotated
@@ -113,55 +129,56 @@ public class MainActivity extends AppCompatActivity {
         bag.remove(listView.getCheckedItemPosition());
         Snackbar snackbar = Snackbar
                 .make(listView, "Item Deleted", Snackbar.LENGTH_LONG)
-                .setAction("UNDO", new View.OnClickListener(){
-                   @Override
-                   public void onClick(View view){
-                       bag.add(lastDeletedPosition, lastDeletedProduct);
-                       getMyAdapter().notifyDataSetChanged();
-                       Snackbar snackbar = Snackbar.make(listView, "Item restored!", Snackbar
-                               .LENGTH_SHORT);
-                       snackbar.show();
-                   }
+                .setAction("UNDO", new View.OnClickListener() {
+                  @Override
+                  public void onClick(View view) {
+                    bag.add(lastDeletedPosition, lastDeletedProduct);
+                    getMyAdapter().notifyDataSetChanged();
+                    Snackbar snackbar = Snackbar.make(listView, "Item restored!", Snackbar
+                            .LENGTH_SHORT);
+                    snackbar.show();
+                  }
                 });
         snackbar.show();
         //you use getMyAdapter so that the app doesn't crash after changes
         getMyAdapter().notifyDataSetChanged();
     }
 
-    //clear/delete button for the entire list
-    public void onClickClear(View view){
-        //showing dialog before anything gets deleted
-        MyDialogFragment dialog = new MyDialogFragment(){
-            @Override
-            protected void positiveClick(){
-                bag.clear();
-                getMyAdapter().notifyDataSetChanged();
-            }
-
-            @Override
-            protected void negativeClick(){
-                Toast toast = Toast.makeText(getApplicationContext(), "List not cleared", Toast
-                        .LENGTH_LONG);
-                toast.show();
-            }
-        };
-        dialog.show(getFragmentManager(), "MyFragment");
+    public void setPreferences(){
+        //create a new activity and instruct the Android system to start it
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivityForResult(intent, 1);
     }
 
-    //switch to using manual amount
-    public void onClickUseManualAmount(View view){
-        Spinner dropDown = (Spinner) findViewById(R.id.dropDownAmount);
-        EditText manualAmount = (EditText) findViewById(R.id.productAmount);
-        dropDown.setVisibility(View.GONE);
-        manualAmount.setVisibility(View.VISIBLE);
+    //after you exit the preferences screen, you have to update the data so it works with the
+    // other activities
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        if(requestCode == 1){
+          SharedPreferences prefs = getSharedPreferences("my_prefs", MODE_PRIVATE);
+          boolean manualInputSwitch = prefs.getBoolean("productAmountSwitch", false);
+          Spinner dropDown = (Spinner) findViewById(R.id.dropDownAmount);
+          EditText manualAmount = (EditText) findViewById(R.id.productAmount);
+          if(manualInputSwitch){
+              dropDown.setVisibility(View.GONE);
+              manualAmount.setVisibility(View.VISIBLE);
+          } else {
+              manualAmount.setVisibility(View.GONE);
+              dropDown.setVisibility(View.VISIBLE);
+          }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
-    //switch to using the dropdown list for the amount
-    public void onClickUseDropdownAmount(View view){
-        Spinner dropDown = (Spinner) findViewById(R.id.dropDownAmount);
-        EditText manualAmount = (EditText) findViewById(R.id.productAmount);
-        manualAmount.setVisibility(View.GONE);
-        dropDown.setVisibility(View.VISIBLE);
+    public void getPreferences(){
+        //read the shared preferences
+        SharedPreferences prefs = getSharedPreferences("my_prefs", MODE_PRIVATE);
+        String username = prefs.getString("username", "");
+        //boolean productAmountSwitch = prefs.getBoolean("productAmountSwitch", false);
+        //welcome the user when they enter the app
+        Toast.makeText(
+                this,
+                "Welcome back, " + username + "!", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -177,13 +194,6 @@ public class MainActivity extends AppCompatActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        /*int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }*/
-
         switch(item.getItemId()){
             case R.id.clear_all:
                 //showing dialog before anything gets deleted
@@ -204,6 +214,7 @@ public class MainActivity extends AppCompatActivity {
                 dialog.show(getFragmentManager(), "MyFragment");
                 return true;
             case R.id.action_settings:
+                setPreferences(); //go to the preferences Activity
                 return true;
         }
 

@@ -68,13 +68,13 @@
             android:layout_width="wrap_content"
             android:onClick="onClickDelete" />
 
-        <Button
+        <!--<Button
             android:id="@+id/clearButton"
             android:text="Clear"
             android:layout_weight="1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="onClickClear" />
+            android:onClick="onClickClear" />-->
 
     </LinearLayout>
 

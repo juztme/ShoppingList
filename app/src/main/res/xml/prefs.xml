@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:key="username"
+        android:summary="Enter your name here"
+        android:title="Your name"/>
+
+    <SwitchPreference
+        android:key="productAmountSwitch"
+        android:summary="Decide how you enter the product amount"
+        android:title="Manual Input"
+        android:switchTextOff="OFF"
+        android:switchTextOn="ON"/>
+</PreferenceScreen>

@@ -72,33 +72,6 @@
             android:layout_width="wrap_content"
             android:onClick="onClickDelete" />
 
-        <Button
-            android:id="@+id/clearButton"
-            android:text="Clear"
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="onClickClear" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <Button
-            android:id="@+id/manualMode"
-            android:text="Use manual amount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="onClickUseManualAmount" />
-        <Button
-            android:id="@+id/dropdownMode"
-            android:text="Use dropdown list"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="onClickUseDropdownAmount" />
     </LinearLayout>
 
     <ListView

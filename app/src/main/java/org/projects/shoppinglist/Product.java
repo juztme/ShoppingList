@@ -53,6 +53,10 @@ public class Product implements Parcelable{
 
   @Override
   public String toString(){
-      return quantity + " " + listQuantity + " " + name;
+     if (quantity == 0){
+       return listQuantity + " " + name;
+     } else {
+       return quantity + " " + name;
+     }
   }
 }
