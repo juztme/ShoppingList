@@ -10,9 +10,35 @@ import android.os.Parcelable;
 public class Product implements Parcelable{
 
   private String name;
-  //private int quantity;
   private int quantity;
   private String listQuantity;
+
+  //add getters and setters for the properties so that Firebase can use them; otherwise you're
+  // going to get an error about serialization
+  public String getName(){
+    return name;
+  }
+
+  public int getQuantity(){
+    return quantity;
+  }
+
+  public String getListQuantity(){
+    return listQuantity;
+  }
+
+  public void setName(String name){
+    this.name = name;
+  }
+
+  public void setQuantity(int quantity){
+    this.quantity = quantity;
+  }
+
+  public void setListQuantity(String listQuantity){
+    this.listQuantity = listQuantity;
+  }
+  public Product() {}
 
   @Override
   public int describeContents() {

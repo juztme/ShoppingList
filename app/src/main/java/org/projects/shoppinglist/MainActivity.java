@@ -9,25 +9,43 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.firebase.client.Firebase;
+import com.firebase.ui.FirebaseListAdapter;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    ArrayAdapter<Product> adapter;
-    ListView listView;
-    ArrayList<Product> bag = new ArrayList<>();
-    public ArrayAdapter<Product> getMyAdapter()
-    {
-        return adapter;
-    }
+    MyDialogFragment dialog = new MyDialogFragment(){
+        @Override
+        protected void positiveClick(){
+                userItemsRef.setValue(null);
+            //bag.clear();
+            getMyAdapter().notifyDataSetChanged();
+        }
 
+        @Override
+        protected void negativeClick(){
+            Toast toast = Toast.makeText(getApplicationContext(), "List not cleared", Toast
+                    .LENGTH_LONG);
+            toast.show();
+        }
+    };
+
+    Firebase userItemsRef;
+    FirebaseListAdapter<Product> fireAdapter;
+    ListView listView;
+    public FirebaseListAdapter<Product> getMyAdapter() { return fireAdapter; }
+    public Product getItem(int index){
+        return (Product) getMyAdapter().getItem(index);
+    }
     //declare elements for saving a copy of the product selected by the user
     Product lastDeletedProduct;
     int lastDeletedPosition;
@@ -35,7 +53,8 @@ public class MainActivity extends AppCompatActivity {
     public void saveCopy(){
         //define the elements to be saved
         lastDeletedPosition = listView.getCheckedItemPosition();
-        lastDeletedProduct = bag.get(lastDeletedPosition);
+        lastDeletedProduct = getItem(lastDeletedPosition);
+
     }
 
     @Override
@@ -49,20 +68,28 @@ public class MainActivity extends AppCompatActivity {
 
         //get previous state of the app before it gets destroyed
         if(savedInstanceState != null){
-            bag = savedInstanceState.getParcelableArrayList("bag");
+            //bag = savedInstanceState.getParcelableArrayList("bag");
             position = savedInstanceState.getInt("position");
         }
 
-        //getting our listiew - you can check the ID in the xml to see that it
+        //getting our listView - you can check the ID in the xml to see that it
         //is indeed specified as "list"
         listView = (ListView) findViewById(R.id.list);
-        //here we create a new adapter linking the bag and the
-        //listview
-        adapter =  new ArrayAdapter<Product>(this,
-                android.R.layout.simple_list_item_checked, bag );
+
+        userItemsRef = new Firebase("https://shoppinglistbaaa.firebaseio.com/items/");
+        //connection between UI and the db connection
+        fireAdapter = new FirebaseListAdapter<Product>(this, Product
+                .class, android.R.layout.simple_list_item_checked, userItemsRef){
+            @Override
+            protected void populateView(View v, Product product, int i){
+                TextView text = (TextView) v.findViewById(android.R.id.text1);
+                text.setText(product.toString());
+            }
+        };
 
         //setting the adapter on the listview
-        listView.setAdapter(adapter);
+        listView.setAdapter(fireAdapter);
+
         //here we set the choice mode - meaning in this case we can
         //only select one item at a time.
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
@@ -95,18 +122,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //get input from user and transform it to string for the product name and int for
-                // the quantity
+                // the quantity; you have to use getText() for EditText types
                 String name = productInput.getText().toString();
-                //int quantity = Integer.valueOf(productAmount.getText().toString());
                 int quantity = Integer.valueOf(productAmount.getText().toString());
                 String listQuantity = (String) dropdownAmount.getSelectedItem();
+                Product p = new Product(name, quantity, listQuantity);
 
                 //add the product to the list
-                bag.add(new Product(name, quantity, listQuantity));
-                //you have to use getText() for EditText types
-
-                //The next line is needed in order to say to the ListView
-                //that the data has changed - we have added stuff now!
+                userItemsRef.push().setValue(p);
+                //tell the listView that the data has changed
                 getMyAdapter().notifyDataSetChanged();
             }
         });
@@ -117,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
     public void onSaveInstanceState(Bundle savedInstanceState){
         super.onSaveInstanceState(savedInstanceState);
         //say what properties you want saved
-        savedInstanceState.putParcelableArrayList("bag", bag);
+        //savedInstanceState.putParcelableArrayList("bag", bag);
         //the name between quotes doesn't have to match the original name of the
         // variable/whatever that is
         savedInstanceState.putInt("position", listView.getCheckedItemPosition());
@@ -126,22 +150,22 @@ public class MainActivity extends AppCompatActivity {
     //delete button for a checked item
     public void onClickDelete(View view){
         saveCopy(); //save a copy of the item selected before you delete it
-        bag.remove(listView.getCheckedItemPosition());
+        int index = listView.getCheckedItemPosition();
+        getMyAdapter().getRef(index).setValue(null);
+
         Snackbar snackbar = Snackbar
                 .make(listView, "Item Deleted", Snackbar.LENGTH_LONG)
                 .setAction("UNDO", new View.OnClickListener() {
                   @Override
                   public void onClick(View view) {
-                    bag.add(lastDeletedPosition, lastDeletedProduct);
-                    getMyAdapter().notifyDataSetChanged();
+                      userItemsRef.push().setValue(lastDeletedProduct);
+                      getMyAdapter().notifyDataSetChanged();
                     Snackbar snackbar = Snackbar.make(listView, "Item restored!", Snackbar
                             .LENGTH_SHORT);
                     snackbar.show();
                   }
                 });
         snackbar.show();
-        //you use getMyAdapter so that the app doesn't crash after changes
-        getMyAdapter().notifyDataSetChanged();
     }
 
     public void setPreferences(){
@@ -191,26 +215,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         switch(item.getItemId()){
             case R.id.clear_all:
                 //showing dialog before anything gets deleted
-                MyDialogFragment dialog = new MyDialogFragment(){
-                    @Override
-                    protected void positiveClick(){
-                        bag.clear();
-                        getMyAdapter().notifyDataSetChanged();
-                    }
-
-                    @Override
-                    protected void negativeClick(){
-                        Toast toast = Toast.makeText(getApplicationContext(), "List not cleared", Toast
-                                .LENGTH_LONG);
-                        toast.show();
-                    }
-                };
                 dialog.show(getFragmentManager(), "MyFragment");
                 return true;
             case R.id.action_settings:

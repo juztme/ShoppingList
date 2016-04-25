@@ -10,6 +10,13 @@ import android.os.Bundle;
  * Created by juztm_000 on 14-Mar-16.
  */
 public class MyDialogFragment extends DialogFragment{
+
+  public MyDialogFragment() {
+
+  }
+
+
+
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState){
     //create a new dialogbuilder
