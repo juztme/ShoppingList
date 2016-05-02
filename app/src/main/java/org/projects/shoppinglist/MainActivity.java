@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,7 +17,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.client.ChildEventListener;
 import com.firebase.client.Firebase;
+import com.firebase.client.Query;
 import com.firebase.ui.FirebaseListAdapter;
 
 import java.util.ArrayList;
@@ -41,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
     Firebase userItemsRef;
     FirebaseListAdapter<Product> fireAdapter;
+    Query queryRef;
     ListView listView;
     public FirebaseListAdapter<Product> getMyAdapter() { return fireAdapter; }
     public Product getItem(int index){
@@ -68,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
 
         //get previous state of the app before it gets destroyed
         if(savedInstanceState != null){
-            //bag = savedInstanceState.getParcelableArrayList("bag");
             position = savedInstanceState.getInt("position");
         }
 
@@ -114,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Button addButton = (Button) findViewById(R.id.addButton);
+        //final SearchView searchButton = (SearchView) findViewById(R.id.searchButton);
         final EditText productInput = (EditText) findViewById(R.id.productInput);
         final EditText productAmount = (EditText) findViewById(R.id.productAmount);
         final Spinner dropdownAmount = (Spinner) findViewById(R.id.dropDownAmount);
@@ -134,6 +138,18 @@ public class MainActivity extends AppCompatActivity {
                 getMyAdapter().notifyDataSetChanged();
             }
         });
+
+        /*searchButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                String search = searchButton.toString();
+                //take the first letter of the text inputted in the search bar
+                String firstLetter = search.substring(0);
+                queryRef = userItemsRef.orderByChild("name").startAt(firstLetter);
+                //TODO: look into this https://www.firebase.com/docs/android/guide/retrieving-data
+                // .html#section-queries
+            }
+        });*/
     }
 
     //save the info before it gets destroyed when the screen gets rotated
@@ -141,7 +157,6 @@ public class MainActivity extends AppCompatActivity {
     public void onSaveInstanceState(Bundle savedInstanceState){
         super.onSaveInstanceState(savedInstanceState);
         //say what properties you want saved
-        //savedInstanceState.putParcelableArrayList("bag", bag);
         //the name between quotes doesn't have to match the original name of the
         // variable/whatever that is
         savedInstanceState.putInt("position", listView.getCheckedItemPosition());
@@ -213,9 +228,17 @@ public class MainActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    public String convertListToString(){
+      String result = "";
+        for (int i = 0; i < fireAdapter.getCount(); i++){
+            Product p = fireAdapter.getItem(i);
+            result += p.getQuantity() + " " + p.getName() + "\n";
+        }
+      return result;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -223,6 +246,15 @@ public class MainActivity extends AppCompatActivity {
             case R.id.clear_all:
                 //showing dialog before anything gets deleted
                 dialog.show(getFragmentManager(), "MyFragment");
+                return true;
+            case R.id.share_list:
+                String finalList = convertListToString();
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                //TODO: find out what to put after the EXTRA_TEXT param
+                sendIntent.putExtra(Intent.EXTRA_TEXT, finalList);
+                sendIntent.setType("text/plain");
+                startActivity(sendIntent);
                 return true;
             case R.id.action_settings:
                 setPreferences(); //go to the preferences Activity
