@@ -16,13 +16,13 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.firebase.client.ChildEventListener;
 import com.firebase.client.Firebase;
 import com.firebase.client.Query;
 import com.firebase.ui.FirebaseListAdapter;
+import com.flurry.android.FlurryAgent;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         //is indeed specified as "list"
         listView = (ListView) findViewById(R.id.list);
 
-        userItemsRef = new Firebase("https://shoppinglistbaaa.firebaseio.com/items/");
+        userItemsRef = new Firebase("https://shoppinglistbaaa.firebaseio.com/items");
         //connection between UI and the db connection
         fireAdapter = new FirebaseListAdapter<Product>(this, Product
                 .class, android.R.layout.simple_list_item_checked, userItemsRef){
@@ -121,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
         final EditText productInput = (EditText) findViewById(R.id.productInput);
         final EditText productAmount = (EditText) findViewById(R.id.productAmount);
         final Spinner dropdownAmount = (Spinner) findViewById(R.id.dropDownAmount);
+        final Map<String, String> productParams = new HashMap<String, String>();
 
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -134,12 +135,19 @@ public class MainActivity extends AppCompatActivity {
 
                 //add the product to the list
                 userItemsRef.push().setValue(p);
+                //add params to flurry when products are added to the basket
+                FlurryAgent.logEvent("Add_Product");
+                productParams.put(p.getName(), String.valueOf(p.getQuantity()));
+                FlurryAgent.logEvent("Add_Product", productParams);
+
                 //tell the listView that the data has changed
                 getMyAdapter().notifyDataSetChanged();
             }
         });
 
-        /*searchButton.setOnClickListener(new View.OnClickListener(){
+
+
+        /* searchButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
                 String search = searchButton.toString();
@@ -228,6 +236,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    //take the product list and transform it into a string
     public String convertListToString(){
       String result = "";
         for (int i = 0; i < fireAdapter.getCount(); i++){
@@ -251,7 +260,6 @@ public class MainActivity extends AppCompatActivity {
                 String finalList = convertListToString();
                 Intent sendIntent = new Intent();
                 sendIntent.setAction(Intent.ACTION_SEND);
-                //TODO: find out what to put after the EXTRA_TEXT param
                 sendIntent.putExtra(Intent.EXTRA_TEXT, finalList);
                 sendIntent.setType("text/plain");
                 startActivity(sendIntent);
