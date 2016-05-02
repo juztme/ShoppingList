@@ -26,9 +26,15 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
+    EditText productInput;
+    EditText productAmount;
+    Spinner dropdownAmount;
+
     MyDialogFragment dialog = new MyDialogFragment(){
         @Override
         protected void positiveClick(){
+            //event to log: clearing the list; no parameters should be logged
+            FlurryAgent.logEvent("Clear_List");
                 userItemsRef.setValue(null);
             //bag.clear();
             getMyAdapter().notifyDataSetChanged();
@@ -48,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
     ListView listView;
     public FirebaseListAdapter<Product> getMyAdapter() { return fireAdapter; }
     public Product getItem(int index){
-        return (Product) getMyAdapter().getItem(index);
+        return getMyAdapter().getItem(index);
     }
     //declare elements for saving a copy of the product selected by the user
     Product lastDeletedProduct;
@@ -118,9 +124,9 @@ public class MainActivity extends AppCompatActivity {
 
         Button addButton = (Button) findViewById(R.id.addButton);
         //final SearchView searchButton = (SearchView) findViewById(R.id.searchButton);
-        final EditText productInput = (EditText) findViewById(R.id.productInput);
-        final EditText productAmount = (EditText) findViewById(R.id.productAmount);
-        final Spinner dropdownAmount = (Spinner) findViewById(R.id.dropDownAmount);
+        productInput = (EditText) findViewById(R.id.productInput);
+        productAmount = (EditText) findViewById(R.id.productAmount);
+        dropdownAmount = (Spinner) findViewById(R.id.dropDownAmount);
         final Map<String, String> productParams = new HashMap<String, String>();
 
         addButton.setOnClickListener(new View.OnClickListener() {
@@ -135,8 +141,8 @@ public class MainActivity extends AppCompatActivity {
 
                 //add the product to the list
                 userItemsRef.push().setValue(p);
+
                 //add params to flurry when products are added to the basket
-                FlurryAgent.logEvent("Add_Product");
                 productParams.put(p.getName(), String.valueOf(p.getQuantity()));
                 FlurryAgent.logEvent("Add_Product", productParams);
 
