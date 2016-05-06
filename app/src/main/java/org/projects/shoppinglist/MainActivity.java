@@ -62,9 +62,9 @@ public class MainActivity extends AppCompatActivity {
     //method for saving a copy of the product selected
     public void saveCopy(){
         //define the elements to be saved
+
         lastDeletedPosition = listView.getCheckedItemPosition();
         lastDeletedProduct = getItem(lastDeletedPosition);
-
     }
 
     @Override
@@ -150,20 +150,6 @@ public class MainActivity extends AppCompatActivity {
                 getMyAdapter().notifyDataSetChanged();
             }
         });
-
-
-
-        /* searchButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                String search = searchButton.toString();
-                //take the first letter of the text inputted in the search bar
-                String firstLetter = search.substring(0);
-                queryRef = userItemsRef.orderByChild("name").startAt(firstLetter);
-                //TODO: look into this https://www.firebase.com/docs/android/guide/retrieving-data
-                // .html#section-queries
-            }
-        });*/
     }
 
     //save the info before it gets destroyed when the screen gets rotated
@@ -179,22 +165,23 @@ public class MainActivity extends AppCompatActivity {
     //delete button for a checked item
     public void onClickDelete(View view){
         saveCopy(); //save a copy of the item selected before you delete it
-        int index = listView.getCheckedItemPosition();
-        getMyAdapter().getRef(index).setValue(null);
-
-        Snackbar snackbar = Snackbar
-                .make(listView, "Item Deleted", Snackbar.LENGTH_LONG)
-                .setAction("UNDO", new View.OnClickListener() {
-                  @Override
-                  public void onClick(View view) {
-                      userItemsRef.push().setValue(lastDeletedProduct);
-                      getMyAdapter().notifyDataSetChanged();
-                    Snackbar snackbar = Snackbar.make(listView, "Item restored!", Snackbar
-                            .LENGTH_SHORT);
-                    snackbar.show();
-                  }
-                });
-        snackbar.show();
+        int index = listView.getCheckedItemPosition(); //get the index of the selected item
+            getMyAdapter().getRef(index).setValue(null); //set the selected item to null in order
+        // to delete it
+            //give the user the option to restore the product
+            Snackbar snackbar = Snackbar
+                    .make(listView, "Item Deleted", Snackbar.LENGTH_LONG)
+                    .setAction("UNDO", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            userItemsRef.push().setValue(lastDeletedProduct);
+                            getMyAdapter().notifyDataSetChanged();
+                            Snackbar snackbar = Snackbar.make(listView, "Item restored!", Snackbar
+                                    .LENGTH_SHORT);
+                            snackbar.show();
+                        }
+                    });
+            snackbar.show();
     }
 
     public void setPreferences(){
@@ -227,7 +214,6 @@ public class MainActivity extends AppCompatActivity {
         //read the shared preferences
         SharedPreferences prefs = getSharedPreferences("my_prefs", MODE_PRIVATE);
         String username = prefs.getString("username", "");
-        //boolean productAmountSwitch = prefs.getBoolean("productAmountSwitch", false);
         //welcome the user when they enter the app
         Toast.makeText(
                 this,
@@ -242,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
-    //take the product list and transform it into a string
+    //take the product list and transform it into a string that can be shared with others later on
     public String convertListToString(){
       String result = "";
         for (int i = 0; i < fireAdapter.getCount(); i++){
