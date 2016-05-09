@@ -64,7 +64,17 @@ public class MainActivity extends AppCompatActivity {
         //define the elements to be saved
 
         lastDeletedPosition = listView.getCheckedItemPosition();
-        lastDeletedProduct = getItem(lastDeletedPosition);
+        //if the item that has to be deleted is in the list
+        if(lastDeletedPosition != ListView.INVALID_POSITION ){
+            //get it
+            lastDeletedProduct = getItem(lastDeletedPosition);
+        } else {
+            //if there was no item selection, display a toast to the user
+            Toast.makeText(
+                    this,
+                    "Please select an item to delete!", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     @Override
@@ -166,8 +176,13 @@ public class MainActivity extends AppCompatActivity {
     public void onClickDelete(View view){
         saveCopy(); //save a copy of the item selected before you delete it
         int index = listView.getCheckedItemPosition(); //get the index of the selected item
+
+        //if the index isn't at an INVALID_POSITION
+        if (index != -1){
             getMyAdapter().getRef(index).setValue(null); //set the selected item to null in order
-        // to delete it
+            // to delete it
+        }
+
             //give the user the option to restore the product
             Snackbar snackbar = Snackbar
                     .make(listView, "Item Deleted", Snackbar.LENGTH_LONG)
