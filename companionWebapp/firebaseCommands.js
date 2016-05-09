@@ -2,14 +2,13 @@ var firebaseRef = new Firebase("https://shoppinglistbaaa.firebaseio.com/");
 var productList = document.getElementById("productsList");
 var productsRef = firebaseRef.child("items");
 
-
 //when the user presses the "Add" button
 document.getElementById("addProduct").addEventListener("click", function(){
   //take input from user
   var name = document.getElementById("productName").value;
   var quantity = parseInt(document.getElementById("productAmount").value);
-  //in the Android app, there's an extra property for the drop-down list for the amount in the Product class, but there's no point in having it in the JS web app; setting listQuantity to "0" should be enough for the Android app to not crash while trying to read the data from Firebase
-  var listQuantity = "0";
+  //listQuantity should still have a value, otherwise 0 will be displayed to the user and that's not nice; so listQuantity should have the same value as the quantity field 
+  var listQuantity = String(quantity);
   
   //save lists of data with the help of child and push(); reference https://www.firebase.com/docs/web/guide/saving-data.html
   productsRef.push({
@@ -26,7 +25,12 @@ productsRef.on("child_added", function(snapshot){
   var listElement = document.createElement("li");
   var checkboxElement = document.createElement("INPUT");
   checkboxElement.setAttribute("type", "checkbox");
-  var listTextNode = document.createTextNode(" " + newItem.quantity + " " + newItem.name);
+  if(newItem.quantity != 0){
+    var listTextNode = document.createTextNode(" " + newItem.quantity + " " + newItem.name);
+  } else {
+    var listTextNode = document.createTextNode(" " + newItem.listQuantity + " " + newItem.name);
+  }
+  
   listElement.appendChild(checkboxElement);
   listElement.appendChild(listTextNode);
   productList.appendChild(listElement);
